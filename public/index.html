@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCENE-LOCATOR</title>
+  <link rel="stylesheet" href="/public/style.css">
+  <link rel="icon" href="/public/movie.png" type="image/x-icon">
+</head>
+<body>
+  <div class="container">
+    <h1>드라마 촬영 장소 추측</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+      <label for="image">장면 사진 업로드</label>
+      <input type="file" id="image" name="image" accept="image/*" required />
+      <button type="submit">업로드</button>
+    </form>
+
+    <div id="result" class="result">
+      <!-- 촬영 장소 추측 결과가 여기에 표시됩니다. -->
+      <h2>결과:</h2>
+      <p id="location"></p>
+      <p id="confidence"></p>
+    </div>
+  </div>
+
+  <script src="/public/app.js"></script>
+</body>
+</html>
