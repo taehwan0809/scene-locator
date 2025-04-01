@@ -1,5 +1,7 @@
 node_modules/
 uploads/
+locations.db
 .env
 *.log
 .DS_Store
+credentials
