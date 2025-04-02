@@ -3,25 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SCENE-LOCATOR</title>
+  <title>드라마 촬영 장소 추측</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="/public/movie.png" type="image/x-icon">
+  <!-- Google Maps JavaScript API (키 교체) -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBBpviVHUu1Yupsb4UeHTQruNQa5naxozY"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>드라마 촬영 장소 추측</h1>
-    <form id="upload-form" enctype="multipart/form-data">
-      <label for="image">장면 사진 업로드</label>
-      <input type="file" id="image" name="image" accept="image/*" required />
-      <button type="submit">업로드</button>
-    </form>
-
-    <div id="result" class="result">
-      <!-- 촬영 장소 추측 결과가 여기에 표시됩니다. -->
-      <h2>결과:</h2>
-      <p id="location"></p>
-      <p id="confidence"></p>
+  <!-- 상단 헤더 -->
+  <header class="top-bar">
+    <div class="logo-area">
+      <span class="logo-text">SCENE LOCATOR</span>
     </div>
+    <h1>드라마 촬영 장소 추측</h1>
+  </header>
+
+  <!-- 메인 컨테이너 (좌/우 영역) -->
+  <div class="main-container">
+    <!-- 왼쪽: 업로드 섹션 -->
+    <section class="left-section">
+      <form id="upload-form" enctype="multipart/form-data" class="upload-form">
+        <label for="image" class="file-label">장면 사진 업로드</label>
+        <input type="file" id="image" name="image" accept="image/*" required />
+        <button type="submit" class="upload-btn">업로드</button>
+      </form>
+
+      <div id="preview-container" class="preview-container" style="display: none;">
+        <h2>업로드한 이미지</h2>
+        <img id="preview-image" src="" alt="업로드한 이미지" />
+      </div>
+    </section>
+
+    <!-- 오른쪽: 결과 섹션 -->
+    <section class="right-section">
+      <div id="result" class="result" style="display: none;">
+        <h2>결과</h2>
+        <p id="location"></p>
+        <p id="confidence"></p>
+        <div id="map" class="map-container"></div>
+      </div>
+    </section>
+    
   </div>
 
   <script src="app.js"></script>
