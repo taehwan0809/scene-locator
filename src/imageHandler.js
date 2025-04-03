@@ -11,9 +11,11 @@ const uploadDir = path.join(__dirname, 'uploads');
  * @returns {string} - 저장된 파일의 경로
  */
 function saveImage(file) {
-  const targetPath = path.join(uploadDir, file.filename);
-  fs.renameSync(file.path, targetPath);  // 임시 파일을 최종 위치로 이동
-  return targetPath;
+  const ext = path.extname(file.originalname);  // 원본 파일명에서 확장자 추출
+  const newFilename = file.filename + ext; 
+  const targetPath = path.join(uploadDir, newFilename);
+  fs.renameSync(file.path, targetPath);
+  return '/uploads/' + newFilename;
 }
 
 /**

@@ -1,3 +1,4 @@
+// [1] 사진 업로드 및 결과 표시 (기존 기능)
 document.getElementById('upload-form').addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -5,20 +6,19 @@ document.getElementById('upload-form').addEventListener('submit', async (event) 
   const imageInput = document.getElementById('image');
   const imageFile = imageInput.files[0];
 
-  
   if (!imageFile) {
     alert("이미지를 선택해주세요.");
     return;
   }
   
-  // 이미지 미리보기
+  // 이미지 미리보기 설정
   const reader = new FileReader();
   reader.onload = function(e) {
     document.getElementById('preview-image').src = e.target.result;
     document.getElementById('preview-container').style.display = 'block';
   };
   reader.readAsDataURL(imageFile);
-
+  
   formData.append('image', imageFile);
 
   try {
@@ -40,8 +40,15 @@ document.getElementById('upload-form').addEventListener('submit', async (event) 
     document.getElementById('location').textContent = `촬영 장소: ${result.location}`;
     document.getElementById('confidence').textContent = `신뢰도: ${result.confidence_score}`;
 
-    // 주소를 좌표로 변환하고 지도에 표시
+    // 지도 표시
     await displayMap(result.location);
+
+    // 게시글 영역 표시 및 게시글 폼의 장소 필드에 결과값 자동 입력
+    document.getElementById('posts-section').style.display = 'block';
+    document.getElementById('post-location').value = result.location;
+  
+    // 게시글 목록 새로고침 (해당 장소 게시글 조회)
+    loadPosts(result.location);
   } catch (error) {
     console.error('오류 발생:', error);
     alert('오류가 발생했습니다. 다시 시도해주세요.');
@@ -51,7 +58,7 @@ document.getElementById('upload-form').addEventListener('submit', async (event) 
 // 지도 표시 함수 (지오코딩)
 async function displayMap(address) {
   try {
-    const GEOCODING_API_KEY = "AIzaSyBBpviVHUu1Yupsb4UeHTQruNQa5naxozY";
+    const GEOCODING_API_KEY = "AIzaSyBBpviVHUu1Yupsb4UeHTQruNQa5naxozY"; // 실제 키로 교체
     const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GEOCODING_API_KEY}`;
 
     const geoResponse = await fetch(geocodeUrl);
@@ -75,5 +82,80 @@ async function displayMap(address) {
     });
   } catch (error) {
     console.error("지도 표시 중 오류 발생:", error);
+  }
+}
+
+// [2] 게시글 등록 기능 (DOMContentLoaded 내부)
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('post-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const fileInput = document.getElementById('post-imageFile');
+    if (!fileInput.files[0]) {
+      alert("인증샷 이미지를 선택해주세요!");
+      return;
+    }
+    
+    const locationInput = document.getElementById('post-location');
+    const descriptionInput = document.getElementById('post-description');
+    const postForm = document.getElementById('post-form');
+
+    // FormData 객체 생성 (폼 내 모든 요소 자동 수집)
+    const formData = new FormData(postForm);
+
+    const locationValue = locationInput.value.trim();
+    if (!locationValue) {
+      alert("장소 정보가 없습니다. 사진 업로드 후 게시글을 작성해주세요.");
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:3000/posts', {
+        method: 'POST',
+        body: formData,
+      });
+      const result = await response.json();
+      alert(result.message || "게시글이 등록되었습니다.");
+      
+      // 폼 초기화
+      fileInput.value = "";
+      descriptionInput.value = "";
+      
+      // 게시글 목록 새로고침
+      loadPosts(locationValue);
+    } catch (error) {
+      console.error('게시글 등록 오류:', error);
+      alert('게시글 등록에 실패했습니다.');
+    }
+  });
+});
+
+// [3] 특정 장소의 게시글을 불러오는 함수
+async function loadPosts(location) {
+  try {
+    const response = await fetch(`http://localhost:3000/posts?location=${encodeURIComponent(location)}`);
+    const data = await response.json();
+    const postsContainer = document.getElementById('posts-container');
+    postsContainer.innerHTML = "";
+
+    if (data.posts && data.posts.length > 0) {
+      data.posts.forEach(post => {
+        const postDiv = document.createElement('div');
+        postDiv.classList.add('post-item');
+
+        postDiv.innerHTML = `
+          <strong>장소:</strong> ${post.location}<br>
+          <strong>내용:</strong> ${post.description}<br>
+          <strong>인증샷:</strong><br>
+          <img src="${post.imageUrl}" alt="게시글 이미지" style="max-width: 100%; border-radius: 4px;">
+          <br><small>${post.createdAt}</small>
+        `;
+        postsContainer.appendChild(postDiv);
+      });
+    } else {
+      postsContainer.innerHTML = "<p>등록된 게시글이 없습니다.</p>";
+    }
+  } catch (error) {
+    console.error('게시글 불러오기 오류:', error);
   }
 }

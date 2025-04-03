@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>드라마 촬영 장소 추측</title>
+  <title>SCENE-LOCATOR</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="movie.png" type="image/x-icon">
   <!-- Google Maps JavaScript API (키 교체) -->
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBBpviVHUu1Yupsb4UeHTQruNQa5naxozY"></script>
 </head>
@@ -33,7 +34,7 @@
       </div>
     </section>
 
-    <!-- 오른쪽: 결과 섹션 -->
+    <!-- 오른쪽: 결과 및 게시글 섹션 -->
     <section class="right-section">
       <div id="result" class="result" style="display: none;">
         <h2>결과</h2>
@@ -41,10 +42,26 @@
         <p id="confidence"></p>
         <div id="map" class="map-container"></div>
       </div>
+
+      <!-- 게시글 영역: 결과 후에 보여지도록 초기에는 숨김 -->
+      
+      <div id="posts-section" class="posts-section" style="display: none;">
+        <h2>방문 인증 게시글</h2>
+        <form id="post-form" enctype="multipart/form-data">
+
+          <input type="text" id="post-location" name="location" placeholder="장소" readonly />
+
+          <input type="file" id="post-imageFile" name="postImage" accept="image/*" />
+          
+          <textarea id="post-description" name="description" placeholder="게시글 내용"></textarea>
+          <button type="submit" class="post-btn">게시글 등록</button>
+        </form>
+        <div id="posts-container"></div>
+      </div>
     </section>
-    
   </div>
 
-  <script src="app.js"></script>
+<script src="app.js"></script>  
 </body>
+
 </html>

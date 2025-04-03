@@ -8,7 +8,8 @@
 /* 배경: 넷플릭스 느낌 다크 테마 */
 body {
   font-family: 'Helvetica Neue', Arial, sans-serif;
-  background-color: #141414; /* 메인 배경 */
+  background-color: #141414;
+  /* 메인 배경 */
   color: #fff;
   min-height: 100vh;
   display: flex;
@@ -20,23 +21,27 @@ body {
   background-color: #1e1e1e;
   padding: 20px;
   text-align: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   position: relative;
 }
+
 .top-bar h1 {
   font-size: 1.8rem;
   font-weight: bold;
   margin-top: 5px;
 }
+
 .logo-area {
   position: absolute;
   left: 20px;
   top: 20px;
 }
+
 .logo-text {
   font-size: 1.2rem;
   font-weight: bold;
-  color: #e50914; /* 넷플릭스 레드 */
+  color: #e50914;
+  /* 넷플릭스 레드 */
 }
 
 /* 메인 컨테이너: 좌우 배치 */
@@ -46,7 +51,8 @@ body {
   margin: 20px auto;
   width: 90%;
   max-width: 1200px;
-  gap: 20px; /* 좌우 섹션 간격 */
+  gap: 20px;
+  /* 좌우 섹션 간격 */
 }
 
 /* 작은 화면에서는 세로 배치 */
@@ -62,9 +68,10 @@ body {
   background-color: #1e1e1e;
   border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
   flex: 1;
-  min-height: 500px; /* 어느 정도 높이 확보 */
+  min-height: 400px;
+  /* 어느 정도 높이 확보 */
 }
 
 /* 업로드 폼 */
@@ -74,6 +81,7 @@ body {
   align-items: center;
   margin-bottom: 20px;
 }
+
 .file-label {
   font-size: 1.1rem;
   margin-bottom: 10px;
@@ -81,9 +89,9 @@ body {
 }
 
 /* 실제 파일 인풋 숨김 */
-input[type="file"] {
+/* input[type="file"] {
   display: none;
-}
+} */
 
 /* 업로드 버튼을 좀 더 멋있게 */
 .upload-btn {
@@ -97,9 +105,10 @@ input[type="file"] {
   cursor: pointer;
   transition: transform 0.3s, box-shadow 0.3s;
 }
+
 .upload-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(229,9,20,0.4);
+  box-shadow: 0 5px 15px rgba(229, 9, 20, 0.4);
 }
 
 /* 이미지 미리보기 */
@@ -107,11 +116,13 @@ input[type="file"] {
   margin-top: 20px;
   text-align: center;
 }
+
 .preview-container h2 {
   margin-bottom: 10px;
   font-size: 1.2rem;
   font-weight: bold;
 }
+
 .preview-container img {
   max-width: 100%;
   height: auto;
@@ -126,13 +137,15 @@ input[type="file"] {
   background-color: #2a2a2a;
   border-radius: 8px;
   padding: 20px;
-  height: 100%;
+  height: auto;
 }
+
 .result h2 {
   margin-bottom: 10px;
   font-size: 1.3rem;
   font-weight: bold;
 }
+
 .result p {
   margin-bottom: 5px;
   font-size: 1.1rem;
@@ -148,7 +161,8 @@ input[type="file"] {
 }
 
 /* 스크롤바가 필요할 경우, 섹션별로 스크롤 설정 */
-.left-section, .right-section {
+.left-section,
+.right-section {
   overflow-y: auto;
 }
 
@@ -156,10 +170,68 @@ input[type="file"] {
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-thumb {
   background-color: #888;
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-track {
   background-color: #1e1e1e;
+}
+
+.posts-section {
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+/* 게시글 폼 스타일 */
+#post-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+#post-form input,
+#post-form textarea {
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  width: 100%;
+  color: #333;
+  /* 다크 배경에 검정 텍스트 필드가 보기 편한 경우 */
+}
+
+.post-btn {
+  background: linear-gradient(90deg, #e50914, #f40612);
+  border: none;
+  color: #fff;
+  padding: 12px 30px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.post-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(229, 9, 20, 0.4);
+}
+
+/* 게시글 아이템 */
+.post-item {
+  background-color: #2a2a2a;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.post-item img {
+  max-width: 100%;
+  border-radius: 4px;
+  margin-top: 10px;
 }
