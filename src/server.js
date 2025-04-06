@@ -108,3 +108,24 @@ app.get('/posts', (req, res) => {
 app.listen(port, () => {
   console.log(`서버가 http://localhost:${port} 에서 실행 중입니다.`);
 });
+
+
+app.get('/postsAll', (req, res) => {
+  db.getAllPosts((err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: "전체 게시글 조회에 실패했습니다." });
+    }
+    res.json({ posts: rows });
+  });
+});
+
+
+
+app.get('/postsAll', (req, res) => {
+  db.getAllPosts((err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: "전체 게시글 조회에 실패했습니다." });
+    }
+    res.json({ posts: rows });
+  });
+});

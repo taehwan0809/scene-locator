@@ -5,11 +5,10 @@
   box-sizing: border-box;
 }
 
-/* 배경: 넷플릭스 느낌 다크 테마 */
+/* 전체 다크 테마 */
 body {
   font-family: 'Helvetica Neue', Arial, sans-serif;
   background-color: #141414;
-  /* 메인 배경 */
   color: #fff;
   min-height: 100vh;
   display: flex;
@@ -19,219 +18,176 @@ body {
 /* 상단 헤더 */
 .top-bar {
   background-color: #1e1e1e;
-  padding: 20px;
+  padding: 10px;
   text-align: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   position: relative;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
 }
-
 .top-bar h1 {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: bold;
   margin-top: 5px;
 }
-
 .logo-area {
   position: absolute;
-  left: 20px;
-  top: 20px;
+  left: 10px;
+  top: 10px;
 }
-
 .logo-text {
-  font-size: 1.2rem;
+  font-size: 2rem;
   font-weight: bold;
   color: #e50914;
-  /* 넷플릭스 레드 */
 }
 
-/* 메인 컨테이너: 좌우 배치 */
+/* 메인 컨테이너: 3열 Grid 레이아웃 (왼3 : 중2 : 오른3) */
 .main-container {
-  display: flex;
   flex: 1;
-  margin: 20px auto;
-  width: 90%;
-  max-width: 1200px;
+  display: grid;
+  grid-template-columns: 3fr 3fr 3fr; /* 양옆이 더 넓고, 가운데가 좁음 */
   gap: 20px;
-  /* 좌우 섹션 간격 */
+  width: 100%;
+  max-width: 1600px; /* 필요 시 제한 */
+  margin: 10px auto;
 }
-
-/* 작은 화면에서는 세로 배치 */
-@media (max-width: 800px) {
+@media (max-width: 900px) {
   .main-container {
-    flex-direction: column;
+    grid-template-columns: 1fr; /* 모바일에서는 한 칼럼 */
   }
 }
 
 /* 섹션 스타일 */
-.left-section,
-.right-section {
+.left-section, .center-section, .right-section {
   background-color: #1e1e1e;
   border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-  flex: 1;
-  min-height: 400px;
-  /* 어느 정도 높이 확보 */
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+  min-height: 300px;
 }
 
-/* 업로드 폼 */
-.upload-form {
+/* 카드 스타일 */
+.card {
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+/* 업로드 폼 & 게시글 폼 */
+.upload-form,
+#post-form {
   display: flex;
   flex-direction: column;
+  gap: 8px;
   align-items: center;
-  margin-bottom: 20px;
 }
-
 .file-label {
-  font-size: 1.1rem;
-  margin-bottom: 10px;
+  font-size: 1rem;
   cursor: pointer;
+  color: #e50914;
 }
-
-/* 실제 파일 인풋 숨김 */
-/* input[type="file"] {
-  display: none;
-} */
-
-/* 업로드 버튼을 좀 더 멋있게 */
-.upload-btn {
+.upload-btn, .post-btn {
   background: linear-gradient(90deg, #e50914, #f40612);
   border: none;
   color: #fff;
-  padding: 12px 30px;
-  font-size: 1rem;
+  padding: 10px 20px;
+  font-size: 0.9rem;
   font-weight: bold;
-  border-radius: 25px;
+  border-radius: 20px;
   cursor: pointer;
   transition: transform 0.3s, box-shadow 0.3s;
 }
-
-.upload-btn:hover {
+.upload-btn:hover, .post-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(229, 9, 20, 0.4);
+  box-shadow: 0 4px 12px rgba(229,9,20,0.4);
+}
+
+/* 입력 필드 */
+#post-form input,
+#post-form textarea {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #333;
 }
 
 /* 이미지 미리보기 */
 .preview-container {
-  margin-top: 20px;
   text-align: center;
+  margin-top: 10px;
 }
-
-.preview-container h2 {
-  margin-bottom: 10px;
-  font-size: 1.2rem;
-  font-weight: bold;
+.preview-container h3 {
+  margin-bottom: 6px;
+  font-size: 1rem;
 }
-
 .preview-container img {
-  max-width: 100%;
+  max-width: 400px;
   height: auto;
-  display: block;
-  margin: 0 auto;
-  object-fit: cover;
   border-radius: 4px;
+  object-fit: cover;
+
 }
 
 /* 결과 영역 */
 .result {
-  background-color: #2a2a2a;
-  border-radius: 8px;
-  padding: 20px;
-  height: auto;
-}
-
-.result h2 {
   margin-bottom: 10px;
-  font-size: 1.3rem;
-  font-weight: bold;
 }
-
-.result p {
-  margin-bottom: 5px;
+.result h2 {
   font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+.result p {
+  margin-bottom: 3px;
+  font-size: 0.9rem;
 }
 
 /* 지도 컨테이너 */
 .map-container {
   width: 100%;
-  height: 300px;
-  margin-top: 20px;
+  height: 250px;
+  margin-top: 8px;
   border-radius: 4px;
   overflow: hidden;
 }
 
-/* 스크롤바가 필요할 경우, 섹션별로 스크롤 설정 */
-.left-section,
-.right-section {
-  overflow-y: auto;
+/* 장소별 게시글 섹션 */
+.posts-section {
+  margin-bottom: 10px;
+}
+#posts-container {
+  margin-top: 10px;
+}
+.post-item {
+  background-color: #1e1e1e;
+  border-radius: 4px;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+.post-item img {
+  max-width: 200%;
+  max-height: 280px;
+  border-radius: 4px;
+  margin-top: 6px;
+  object-fit: cover;
 }
 
-/* 스크롤바 커스터마이징 (크롬 등 지원 브라우저) */
+/* 전체 게시글(오른쪽 칼럼) */
+#all-posts-container .post-item img {
+  max-width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+}
+
+/* 스크롤바 커스터마이징 */
 ::-webkit-scrollbar {
   width: 8px;
 }
-
 ::-webkit-scrollbar-thumb {
   background-color: #888;
   border-radius: 4px;
 }
-
 ::-webkit-scrollbar-track {
   background-color: #1e1e1e;
-}
-
-.posts-section {
-  background-color: #1e1e1e;
-  border-radius: 8px;
-  padding: 20px;
-  margin-top: 20px;
-}
-
-/* 게시글 폼 스타일 */
-#post-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-#post-form input,
-#post-form textarea {
-  padding: 10px;
-  border: none;
-  border-radius: 4px;
-  width: 100%;
-  color: #333;
-  /* 다크 배경에 검정 텍스트 필드가 보기 편한 경우 */
-}
-
-.post-btn {
-  background: linear-gradient(90deg, #e50914, #f40612);
-  border: none;
-  color: #fff;
-  padding: 12px 30px;
-  font-size: 1rem;
-  font-weight: bold;
-  border-radius: 25px;
-  cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.post-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(229, 9, 20, 0.4);
-}
-
-/* 게시글 아이템 */
-.post-item {
-  background-color: #2a2a2a;
-  border-radius: 4px;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-.post-item img {
-  max-width: 100%;
-  border-radius: 4px;
-  margin-top: 10px;
 }

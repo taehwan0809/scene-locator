@@ -1,4 +1,4 @@
-// [1] 사진 업로드 및 결과 표시 (기존 기능)
+// [1] 사진 업로드 및 결과 표시
 document.getElementById('upload-form').addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -10,7 +10,7 @@ document.getElementById('upload-form').addEventListener('submit', async (event) 
     alert("이미지를 선택해주세요.");
     return;
   }
-  
+
   // 이미지 미리보기 설정
   const reader = new FileReader();
   reader.onload = function(e) {
@@ -149,6 +149,7 @@ async function loadPosts(location) {
           <strong>인증샷:</strong><br>
           <img src="${post.imageUrl}" alt="게시글 이미지" style="max-width: 100%; border-radius: 4px;">
           <br><small>${post.createdAt}</small>
+          <br><button onclick="deletePost(${post.id}, '${post.location}')">삭제</button>
         `;
         postsContainer.appendChild(postDiv);
       });
@@ -159,3 +160,78 @@ async function loadPosts(location) {
     console.error('게시글 불러오기 오류:', error);
   }
 }
+
+// 게시글 삭제 함수 (전역에서 호출 가능하도록)
+async function deletePost(postId, location) {
+  try {
+    const response = await fetch(`http://localhost:3000/posts/${postId}`, {
+      method: 'DELETE'
+    });
+    const result = await response.json();
+    alert(result.message || "게시글이 삭제되었습니다.");
+    loadPosts(location);
+  } catch (error) {
+    console.error('게시글 삭제 오류:', error);
+    alert('게시글 삭제에 실패했습니다.');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+// [4] 전체 게시글 불러오는 함수
+async function loadAllPosts() {
+  try {
+    const response = await fetch('http://localhost:3000/postsAll');
+    const data = await response.json();
+    const allPostsContainer = document.getElementById('all-posts-container');
+    allPostsContainer.innerHTML = "";
+
+    if (data.posts && data.posts.length > 0) {
+      data.posts.forEach(post => {
+        const postDiv = document.createElement('div');
+        postDiv.classList.add('post-item');
+
+        postDiv.innerHTML = `
+          <strong>장소:</strong> ${post.location}<br>
+          <strong>내용:</strong> ${post.description}<br>
+          <strong>인증샷:</strong><br>
+          <img src="${post.imageUrl}" alt="게시글 이미지"><br>
+          <small>${post.createdAt}</small>
+          <br><button onclick="deletePost(${post.id}, '${post.location}')">삭제</button>
+        `;
+        allPostsContainer.appendChild(postDiv);
+      });
+    } else {
+      allPostsContainer.innerHTML = "<p>등록된 게시글이 없습니다.</p>";
+    }
+  } catch (error) {
+    console.error('전체 게시글 불러오기 오류:', error);
+  }
+}
+loadAllPosts();
+});
+
+async function deletePost(postId, location) {
+  try {
+    const response = await fetch(`http://localhost:3000/posts/${postId}`, {
+      method: 'DELETE'
+    });
+    const result = await response.json();
+    alert(result.message || "게시글이 삭제되었습니다.");
+    // 삭제 후, 전체 게시글과 해당 장소 게시글 새로고침
+    loadAllPosts();
+    loadPosts(location);
+  } catch (error) {
+    console.error('게시글 삭제 오류:', error);
+    alert('게시글 삭제에 실패했습니다.');
+  }
+}
+
+// [4] 전체 게시글 조회 엔드포인트
+app.get('/postsAll', (req, res) => {
+  db.getAllPosts((err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: "전체 게시글 조회에 실패했습니다." });
+    }
+    res.json({ posts: rows });
+  });
+});

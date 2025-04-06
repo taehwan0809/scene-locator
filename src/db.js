@@ -113,3 +113,23 @@ module.exports = {
   insertPost,
   getPostsByLocation,
 };
+
+function getAllPosts(callback) {
+  const sql = "SELECT * FROM posts ORDER BY createdAt DESC";
+  db.all(sql, [], (err, rows) => {
+    if (err) {
+      console.error("전체 게시글 조회 오류:", err);
+      callback(err, null);
+    } else {
+      callback(null, rows);
+    }
+  });
+}
+
+module.exports = {
+  insertLocation,
+  getLocationsByDrama,
+  insertPost,
+  getPostsByLocation,
+  getAllPosts, // 추가된 함수
+};
