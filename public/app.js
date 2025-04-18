@@ -58,7 +58,7 @@ document.getElementById('upload-form').addEventListener('submit', async (event) 
 // 지도 표시 함수 (지오코딩)
 async function displayMap(address) {
   try {
-    const GEOCODING_API_KEY = "AIzaSyBBpviVHUu1Yupsb4UeHTQruNQa5naxozY"; // 실제 키로 교체
+    const GEOCODING_API_KEY = "AIzaSyBBpviVHUu1Yupsb4UeHTQruNQa5naxozY11"; // 실제 키로 교체
     const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GEOCODING_API_KEY}`;
 
     const geoResponse = await fetch(geocodeUrl);
