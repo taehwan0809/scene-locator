@@ -32,6 +32,12 @@ app.use(cors({
   origin: 'http://localhost:5500'
 }));
 
+
+app.get('/api/google-maps-key', (req, res) => {
+  res.json({ key: process.env.GOOGLE_MAPS_API_KEY });
+});
+
+
 const staticPath = path.join(__dirname, "..", "public");
 app.use(express.static(staticPath));
 
@@ -40,23 +46,37 @@ app.get("/", (req, res) => {
 });
 
 // [1] 장면 업로드 + Vision API
+// [사진 업로드 및 위치 감지 기능] ⭐
+// 사용자가 사진을 업로드하면 Multer를 통해 파일을 받고, 
+// imageHandler.saveImage()로 파일을 서버의 uploads 폴더에 저장 후,
+// Google Cloud Vision API를 호출하여 촬영 장소(랜드마크)를 자동 감지합니다.
+// 감지된 결과는 DB에 저장되고 클라이언트에 JSON으로 반환됩니다.
+
 app.post('/upload', upload.single('image'), async (req, res) => {
   try {
-    const file = req.file;
+    const file = req.file; // Multer가 업로드한 파일 정보 (⭐ 여기서 파일이 없으면 오류 처리)
     if (!file) return res.status(400).send('파일을 업로드해야 합니다.');
 
-    const imagePath = imageHandler.saveImage(file);
-    const landmarkData = await visionHandler.detectLandmarks("./src/"+ imagePath);
+    // 파일을 저장하고, 클라이언트가 접근할 수 있는 URL로 변환 (예: '/uploads/파일명')
+    const imagePath = imageHandler.saveImage(file); // ⭐ 파일 저장 및 URL 반환
 
-    db.insertLocation("드라마 이름", "장면 설명", landmarkData.location, landmarkData.confidence_score);
-    imageHandler.deleteImage(imagePath); // Vision API 후 임시 파일 삭제
+    // Vision API를 통해 업로드한 이미지에서 촬영 장소(랜드마크)를 감지
+    const landmarkData = await visionHandler.detectLandmarks("./src/" + imagePath); // ⭐ 자동 위치 감지
 
-    res.json(landmarkData);
+    // 감지된 촬영 장소 정보를 DB에 저장 (예: 드라마 이름, 장면 설명은 샘플 값)
+    db.insertLocation("드라마 이름", "장면 설명", landmarkData.location, landmarkData.confidence_score); // ⭐ DB에 결과 저장
+
+    // Vision API 처리가 끝난 후 임시 저장 파일 삭제
+    imageHandler.deleteImage(imagePath); // ⭐ 임시 파일 정리
+
+    // 감지 결과를 JSON으로 클라이언트에 반환
+    res.json(landmarkData); // ⭐ 최종 결과 전달
   } catch (error) {
     console.error('서버 에러 발생:', error);
     res.status(500).send('서버 에러 발생');
   }
 });
+
 
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
@@ -120,12 +140,3 @@ app.get('/postsAll', (req, res) => {
 });
 
 
-
-app.get('/postsAll', (req, res) => {
-  db.getAllPosts((err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: "전체 게시글 조회에 실패했습니다." });
-    }
-    res.json({ posts: rows });
-  });
-});

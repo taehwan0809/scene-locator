@@ -1,14 +1,13 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+// [DB 연결 및 테이블 생성] ⭐
+// SQLite3 모듈을 사용해 locations와 posts 테이블을 생성하여,
+// 사진 업로드 결과와 사용자가 등록한 게시글 데이터를 저장합니다.
 
-// DB 파일 경로 (src 폴더 내에 locations.db)
-const dbPath = path.join(__dirname, 'locations.db');
+const sqlite3 = require('sqlite3').verbose(); // DB 연동 모듈 로드 ⭐
+const path = require('path');
+const dbPath = path.join(__dirname, 'locations.db'); // DB 파일 위치 ⭐
 const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('데이터베이스 연결 실패:', err.message);
-  } else {
-    console.log('데이터베이스 연결 성공');
-  }
+  if (err) console.error('데이터베이스 연결 실패:', err.message);
+  else console.log('데이터베이스 연결 성공'); // 연결 성공 시 로그 ⭐
 });
 
 // 테이블 생성 함수: locations와 posts 테이블 생성
@@ -81,15 +80,12 @@ const getLocationsByDrama = (dramaName, callback) => {
   });
 };
 
-// posts 테이블에 게시글 삽입 함수
+// 게시글 등록 함수 (사용자가 업로드한 인증 게시글 저장) ⭐
 function insertPost(location, imageUrl, description) {
   const stmt = db.prepare("INSERT INTO posts (location, imageUrl, description) VALUES (?, ?, ?)");
   stmt.run(location, imageUrl, description, function(err) {
-    if (err) {
-      console.error("게시글 삽입 실패:", err.message);
-    } else {
-      console.log(`게시글 삽입됨. ID: ${this.lastID}`);
-    }
+    if (err) console.error("게시글 삽입 실패:", err.message);
+    else console.log(`게시글 삽입됨. ID: ${this.lastID}`); // 삽입 성공 시 로그 ⭐
   });
   stmt.finalize();
 }
@@ -114,22 +110,23 @@ module.exports = {
   getPostsByLocation,
 };
 
+// 전체 게시글 조회 함수 (전체 사용자 게시글 확인) ⭐
 function getAllPosts(callback) {
-  const sql = "SELECT * FROM posts ORDER BY createdAt DESC";
+  const sql = "SELECT * FROM posts ORDER BY createdAt DESC"; // 최신 게시글부터 정렬
   db.all(sql, [], (err, rows) => {
     if (err) {
       console.error("전체 게시글 조회 오류:", err);
       callback(err, null);
     } else {
-      callback(null, rows);
+      callback(null, rows); // DB에서 조회된 게시글 반환 ⭐
     }
   });
 }
 
 module.exports = {
-  insertLocation,
-  getLocationsByDrama,
-  insertPost,
-  getPostsByLocation,
-  getAllPosts, // 추가된 함수
+  insertLocation,          // 사진 업로드 결과 저장 함수 (위 server.js 코드에서 사용)
+  getLocationsByDrama: getPostsByLocation, // 특정 장소 게시글 조회 (생략된 부분)
+  insertPost,              // 게시글 등록 함수 ⭐
+  getPostsByLocation,      // 특정 장소 게시글 조회 (생략된 부분)
+  getAllPosts,             // 전체 게시글 조회 함수 ⭐
 };

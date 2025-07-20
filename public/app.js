@@ -1,66 +1,29 @@
-// [1] 사진 업로드 및 결과 표시
-document.getElementById('upload-form').addEventListener('submit', async (event) => {
-  event.preventDefault();
-
-  const formData = new FormData();
-  const imageInput = document.getElementById('image');
-  const imageFile = imageInput.files[0];
-
-  if (!imageFile) {
-    alert("이미지를 선택해주세요.");
-    return;
-  }
-
-  // 이미지 미리보기 설정
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    document.getElementById('preview-image').src = e.target.result;
-    document.getElementById('preview-container').style.display = 'block';
-  };
-  reader.readAsDataURL(imageFile);
-  
-  formData.append('image', imageFile);
-
+// [1] Google Maps API 스크립트 동적 로드 함수
+async function loadGoogleMapsScript(callback) {
   try {
-    // 서버로 이미지 전송
-    const response = await fetch('http://localhost:3000/upload', {
-      method: 'POST',
-      body: formData,
-    });
+    const res = await fetch("http://localhost:3000/api/google-maps-key");
+    const data = await res.json();
+    const key = data.key;
 
-    if (!response.ok) {
-      throw new Error('서버 오류');
-    }
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&callback=initMap`;
+    script.async = true;
+    script.defer = true;
 
-    const result = await response.json();
-    console.log('서버 응답:', result);
-
-    // 결과 표시
-    document.getElementById('result').style.display = 'block';
-    document.getElementById('location').textContent = `촬영 장소: ${result.location}`;
-    document.getElementById('confidence').textContent = `신뢰도: ${result.confidence_score}`;
-
-    // 지도 표시
-    await displayMap(result.location);
-
-    // 게시글 영역 표시 및 게시글 폼의 장소 필드에 결과값 자동 입력
-    document.getElementById('posts-section').style.display = 'block';
-    document.getElementById('post-location').value = result.location;
-  
-    // 게시글 목록 새로고침 (해당 장소 게시글 조회)
-    loadPosts(result.location);
-  } catch (error) {
-    console.error('오류 발생:', error);
-    alert('오류가 발생했습니다. 다시 시도해주세요.');
+    window.initMap = callback; // 콜백 함수 연결
+    document.head.appendChild(script);
+  } catch (err) {
+    console.error("Google Maps API 키 로드 실패", err);
   }
-});
+}
 
-// 지도 표시 함수 (지오코딩)
+// [2] 지도 표시 함수
 async function displayMap(address) {
   try {
-    const GEOCODING_API_KEY = "AIzaSyBBpviVHUu1Yupsb4UeHTQruNQa5naxozY"; // 실제 키로 교체
-    const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GEOCODING_API_KEY}`;
+    const keyRes = await fetch("http://localhost:3000/api/google-maps-key");
+    const { key: GEOCODING_API_KEY } = await keyRes.json();
 
+    const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GEOCODING_API_KEY}`;
     const geoResponse = await fetch(geocodeUrl);
     const geoData = await geoResponse.json();
 
@@ -68,7 +31,7 @@ async function displayMap(address) {
       throw new Error("지오코딩 결과 없음");
     }
 
-    const location = geoData.results[0].geometry.location; // { lat, lng }
+    const location = geoData.results[0].geometry.location;
 
     const map = new google.maps.Map(document.getElementById("map"), {
       center: location,
@@ -85,26 +48,73 @@ async function displayMap(address) {
   }
 }
 
-// [2] 게시글 등록 기능 (DOMContentLoaded 내부)
+// [3] 사진 업로드 및 결과 처리
+document.getElementById('upload-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const imageInput = document.getElementById('image');
+  const imageFile = imageInput.files[0];
+
+  if (!imageFile) {
+    alert("이미지를 선택해주세요.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    document.getElementById('preview-image').src = e.target.result;
+    document.getElementById('preview-container').style.display = 'block';
+  };
+  reader.readAsDataURL(imageFile);
+
+  const formData = new FormData();
+  formData.append('image', imageFile);
+
+  try {
+    const response = await fetch('http://localhost:3000/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('서버 오류');
+    }
+
+    const result = await response.json();
+    console.log('서버 응답:', result);
+
+    document.getElementById('result').style.display = 'block';
+    document.getElementById('location').textContent = `촬영 장소: ${result.location}`;
+    document.getElementById('confidence').textContent = `신뢰도: ${result.confidence_score}`;
+    document.getElementById('posts-section').style.display = 'block';
+    document.getElementById('post-location').value = result.location;
+
+    // 📌 지도 로드 → displayMap 실행
+    await loadGoogleMapsScript(() => displayMap(result.location));
+
+    loadPosts(result.location);
+  } catch (error) {
+    console.error('오류 발생:', error);
+    alert('오류가 발생했습니다. 다시 시도해주세요.');
+  }
+});
+
+// [4] 게시글 등록
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('post-form').addEventListener('submit', async (event) => {
     event.preventDefault();
 
     const fileInput = document.getElementById('post-imageFile');
+    const locationInput = document.getElementById('post-location');
+    const descriptionInput = document.getElementById('post-description');
+    const formData = new FormData(document.getElementById('post-form'));
+
     if (!fileInput.files[0]) {
       alert("인증샷 이미지를 선택해주세요!");
       return;
     }
-    
-    const locationInput = document.getElementById('post-location');
-    const descriptionInput = document.getElementById('post-description');
-    const postForm = document.getElementById('post-form');
 
-    // FormData 객체 생성 (폼 내 모든 요소 자동 수집)
-    const formData = new FormData(postForm);
-
-    const locationValue = locationInput.value.trim();
-    if (!locationValue) {
+    if (!locationInput.value.trim()) {
       alert("장소 정보가 없습니다. 사진 업로드 후 게시글을 작성해주세요.");
       return;
     }
@@ -114,15 +124,12 @@ document.addEventListener('DOMContentLoaded', () => {
         method: 'POST',
         body: formData,
       });
+
       const result = await response.json();
       alert(result.message || "게시글이 등록되었습니다.");
-      
-      // 폼 초기화
       fileInput.value = "";
       descriptionInput.value = "";
-      
-      // 게시글 목록 새로고침
-      loadPosts(locationValue);
+      loadPosts(locationInput.value.trim());
     } catch (error) {
       console.error('게시글 등록 오류:', error);
       alert('게시글 등록에 실패했습니다.');
@@ -130,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// [3] 특정 장소의 게시글을 불러오는 함수
+// [5] 특정 장소의 게시글 불러오기
 async function loadPosts(location) {
   try {
     const response = await fetch(`http://localhost:3000/posts?location=${encodeURIComponent(location)}`);
@@ -138,15 +145,13 @@ async function loadPosts(location) {
     const postsContainer = document.getElementById('posts-container');
     postsContainer.innerHTML = "";
 
-    if (data.posts && data.posts.length > 0) {
+    if (data.posts?.length) {
       data.posts.forEach(post => {
         const postDiv = document.createElement('div');
         postDiv.classList.add('post-item');
-
         postDiv.innerHTML = `
           <strong>장소:</strong> ${post.location}<br>
           <strong>내용:</strong> ${post.description}<br>
-          <strong>인증샷:</strong><br>
           <img src="${post.imageUrl}" alt="게시글 이미지" style="max-width: 100%; border-radius: 4px;">
           <br><small>${post.createdAt}</small>
           <br><button onclick="deletePost(${post.id}, '${post.location}')">삭제</button>
@@ -161,23 +166,27 @@ async function loadPosts(location) {
   }
 }
 
-// 게시글 삭제 함수 (전역에서 호출 가능하도록)
+// [6] 게시글 삭제
 async function deletePost(postId, location) {
   try {
     const response = await fetch(`http://localhost:3000/posts/${postId}`, {
-      method: 'DELETE'
+      method: 'DELETE',
     });
     const result = await response.json();
     alert(result.message || "게시글이 삭제되었습니다.");
     loadPosts(location);
+    loadAllPosts();
   } catch (error) {
     console.error('게시글 삭제 오류:', error);
     alert('게시글 삭제에 실패했습니다.');
   }
 }
 
+// [7] 전체 게시글 불러오기
 document.addEventListener('DOMContentLoaded', () => {
-// [4] 전체 게시글 불러오는 함수
+  loadAllPosts();
+});
+
 async function loadAllPosts() {
   try {
     const response = await fetch('http://localhost:3000/postsAll');
@@ -185,15 +194,13 @@ async function loadAllPosts() {
     const allPostsContainer = document.getElementById('all-posts-container');
     allPostsContainer.innerHTML = "";
 
-    if (data.posts && data.posts.length > 0) {
+    if (data.posts?.length) {
       data.posts.forEach(post => {
         const postDiv = document.createElement('div');
         postDiv.classList.add('post-item');
-
         postDiv.innerHTML = `
           <strong>장소:</strong> ${post.location}<br>
           <strong>내용:</strong> ${post.description}<br>
-          <strong>인증샷:</strong><br>
           <img src="${post.imageUrl}" alt="게시글 이미지"><br>
           <small>${post.createdAt}</small>
           <br><button onclick="deletePost(${post.id}, '${post.location}')">삭제</button>
@@ -207,31 +214,3 @@ async function loadAllPosts() {
     console.error('전체 게시글 불러오기 오류:', error);
   }
 }
-loadAllPosts();
-});
-
-async function deletePost(postId, location) {
-  try {
-    const response = await fetch(`http://localhost:3000/posts/${postId}`, {
-      method: 'DELETE'
-    });
-    const result = await response.json();
-    alert(result.message || "게시글이 삭제되었습니다.");
-    // 삭제 후, 전체 게시글과 해당 장소 게시글 새로고침
-    loadAllPosts();
-    loadPosts(location);
-  } catch (error) {
-    console.error('게시글 삭제 오류:', error);
-    alert('게시글 삭제에 실패했습니다.');
-  }
-}
-
-// [4] 전체 게시글 조회 엔드포인트
-app.get('/postsAll', (req, res) => {
-  db.getAllPosts((err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: "전체 게시글 조회에 실패했습니다." });
-    }
-    res.json({ posts: rows });
-  });
-});
