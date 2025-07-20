@@ -214,3 +214,6 @@ async function loadAllPosts() {
     console.error('전체 게시글 불러오기 오류:', error);
   }
 }
+
+
+
