@@ -1,6 +1,6 @@
 # Drama Location Finder
 
-이 프로젝트는 드라마나 영화의 한 장면을 업로드하면 해당 장면의 촬영 장소를 추측하여 알려주는 웹 애플리케이션입니다. Express.js와 Multer를 사용하여 이미지 파일을 업로드하고, google geocoding API와 SQLite3를 통해 촬영 장소를 추정하는 기능을 제공합니다.
+이 프로젝트는 드라마나 영화의 한 장면을 업로드하면 해당 장면의 촬영 장소를 추측하여 알려주는 웹 애플리케이션입니다. Express.js와 Multer를 사용하여 이미지 파일을 업로드하고, google vision API와 SQLite3를 통해 촬영 장소를 추정하는 기능을 제공합니다.
 
 ## 기능
 
